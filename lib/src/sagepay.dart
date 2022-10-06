@@ -20,7 +20,7 @@ class SagePay {
     required this.token,
   });
 
-  Future<PaymentResponse> chargeTransaction() async {
+  Future<PaymentResponse?> chargeTransaction() async {
     final request = SagePay(
       context: context,
       business: business,

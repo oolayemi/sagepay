@@ -1,11 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+// import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
 import 'package:sagepay/src/payment_response.dart';
 import 'package:sagepay/src/sagepay.dart';
-import 'package:sagepay/src/transaction_cellback.dart';
-import 'package:sagepay/src/utils/payment_tabs.dart';
+import 'package:sagepay/src/services/service.dart';
+import 'package:sagepay/src/transaction_callback.dart';
 import 'package:sagepay/src/utils/sage_pay_utils.dart';
 
 class SagePayCheckout extends StatefulWidget {
@@ -19,48 +21,40 @@ class SagePayCheckout extends StatefulWidget {
 }
 
 class _SagePayCheckoutState extends State<SagePayCheckout> implements TransactionCallBack {
-  late PageController _pageController;
-  int _selectedPage = 0;
-
   final _navigatorKey = GlobalKey<NavigatorState>();
-  List<String> errors = [];
+  Timer? timer;
+  bool startTimer = false;
 
-  static String formatAmount(amount) {
-    return NumberFormat('#,###,###,###.##').format(amount);
-  }
-
-  Map<String, dynamic> data = {};
+  bool loading = false;
+  String? error;
 
   @override
   void initState() {
-    _pageController = PageController();
-    data = {
-      "email": widget.request.business.email,
-      "amount": widget.request.amount,
-      "reference": widget.request.reference,
-      "callback_url": widget.request.callbackUrl
-    };
     super.initState();
+
+    timer = Timer.periodic(const Duration(seconds: 10), (_) async {
+      if (startTimer) {
+        await APIServices().paymentStatus(widget.request.token, widget.request.reference).then((value) {
+          if (value['data'].isNotEmpty && value['data']['transaction_data']['status'] == "SUCCESSFUL") {
+            timer!.cancel();
+            Navigator.pop(widget.mainContext, PaymentResponse(status: "success", success: true));
+          }
+        });
+      }
+    });
   }
 
-  void _changePage(int pageNum) {
-    setState(() {
-      _selectedPage = pageNum;
-      _pageController.animateToPage(
-        pageNum,
-        duration: const Duration(milliseconds: 1000),
-        curve: Curves.fastLinearToSlowEaseIn,
-      );
-    });
+  @override
+  void dispose() {
+    super.dispose();
+    timer!.cancel();
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       key: _navigatorKey,
-      theme: ThemeData(
-        textTheme: GoogleFonts.quicksandTextTheme()
-      ),
+      theme: ThemeData(textTheme: GoogleFonts.quicksandTextTheme()),
       home: Container(
         color: Colors.white,
         child: SafeArea(
@@ -68,131 +62,103 @@ class _SagePayCheckoutState extends State<SagePayCheckout> implements Transactio
             resizeToAvoidBottomInset: false,
             body: Container(
               decoration: const BoxDecoration(
-                image: DecorationImage(image: AssetImage('assets/images/bg_img.png', package: 'sagepay'), fit: BoxFit.cover),
-              ),
+                  image: DecorationImage(
+                image: AssetImage('assets/images/bg_img.png', package: 'sagepay'),
+                fit: BoxFit.cover,
+              )),
               // color: Colors.white,
-              child: FutureBuilder<dynamic>(
-                  // future: _memoizer.runOnce(() async {
-                  //   return await FirebaseFirestore.instance.collection('Collector').doc(FirebaseAuth.instance.currentUser!.uid.toString()).get();
-                  // }),
-                  // future: _memoizer.runOnce(() async {
-                  //   return await APIServices().initializeCheckout({
-                  //     "email": widget.business.email,
-                  //     "amount": widget.amount,
-                  //     "reference": widget.reference,
-                  //     "phone": "09098877876",
-                  //     "callback_url": widget.callbackUrl
-                  //   }, widget.token);
-                  // }),
-                  future: null,
-                  builder: (context, AsyncSnapshot<dynamic> snapshot) {
-                    // if (snapshot.connectionState == ConnectionState.done) {
-                    //   if (snapshot.data != null && snapshot.data!['success']) {
-                    return Container(
-                      margin: const EdgeInsets.only(top: 10),
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(20)),
-                      child: Column(
-                        children: [
-                          Row(
-                            children: [
-                              Container(
-                                height: 50,
-                                width: 50,
-                                padding: const EdgeInsets.all(5),
-                                decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.grey, width: .6)),
-                                child: widget.request.business.imageUrl == null
-                                    ? Image.asset('assets/images/capital_sage.png', package: 'sagepay',)
-                                    : Image.asset(widget.request.business.imageUrl!),
-                              ),
-                              const SizedBox(
-                                width: 10,
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(widget.request.business.name, style: const TextStyle(fontSize: 16)),
-                                  const SizedBox(height: 5),
-                                  Text(widget.request.business.email,
-                                      style:
-                                          const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 1),
-                                ],
+              child: Column(
+                children: [
+                  Expanded(
+                      flex: 20,
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                              height: 30,
+                              child: error != null
+                                  ? Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(error!),
                               )
-                            ],
-                          ),
-                          const SizedBox(height: 25),
-                          Container(
-                            height: 60,
-                            decoration: BoxDecoration(
-                              color: SagePayUtils.bgGrey,
-                              borderRadius: BorderRadius.circular(40),
+                                  : const SizedBox(),
                             ),
-                            padding: const EdgeInsets.all(5),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                TabButton(
-                                    selectedPage: _selectedPage,
-                                    pageNumber: 0,
-                                    svgPath: "assets/icons/card.svg",
-                                    text: "Card",
-                                    onPressed: () {
-                                      _changePage(0);
-                                    }),
-                                TabButton(
-                                    selectedPage: _selectedPage,
-                                    pageNumber: 1,
-                                    svgPath: "assets/icons/bank.svg",
-                                    text: "Transfer",
-                                    onPressed: () {
-                                      _changePage(1);
-                                    }),
-                              ],
-                            ),
-                          ),
-                          SizedBox(
-                            height: 150,
-                            child: Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    "You will be charged",
-                                    style: TextStyle(color: SagePayUtils.hexToColor("#A49890"), fontSize: 16),
-
-                                  ),
-                                  const SizedBox(height: 5),
-                                  Text(
-                                    "₦${formatAmount(widget.request.amount)}",
-                                    style:
-                                        const TextStyle(fontSize: 45, fontWeight: FontWeight.bold),
-                                  ),
-                                ],
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                onPressed: () async {
+                                  var data = {
+                                    "email": widget.request.business.email,
+                                    "amount": widget.request.amount,
+                                    "reference": widget.request.reference,
+                                    "phone": "09098877876",
+                                    "callback_url": widget.request.callbackUrl
+                                  };
+                                  error = null;
+                                  loading = true;
+                                  setState(() {});
+                                  APIServices().initializeCheckout(data, widget.request.token).then((value) {
+                                    if (value != null && value['success']) {
+                                      startTimer = true;
+                                      InAppBrowser().openUrlRequest(
+                                        urlRequest: URLRequest(
+                                          url: Uri.parse(value['data']['payment_url']),
+                                        ),
+                                        options: InAppBrowserClassOptions(
+                                          crossPlatform: InAppBrowserOptions(
+                                              hideProgressBar: true,
+                                              hideUrlBar: true,
+                                              hideToolbarTop: true
+                                          ),
+                                        ),
+                                      );
+                                      loading = false;
+                                      error = null;
+                                      setState(() {});
+                                    } else {
+                                      loading = false;
+                                      error = value!['message'];
+                                      setState(() {});
+                                    }
+                                  });
+                                },
+                                style: ElevatedButton.styleFrom(
+                                    primary: SagePayUtils.orangePrimary,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
+                                    padding: const EdgeInsets.all(20)),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Text('Make Payment'),
+                                    loading
+                                        ? const Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: 18.0),
+                                      child: SizedBox(
+                                        height: 20,
+                                        width: 20,
+                                        child: CircularProgressIndicator(color: Colors.white),
+                                      ),
+                                    )
+                                        : const SizedBox()
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                          Expanded(
-                            child: PageView(
-                              controller: _pageController,
-                              onPageChanged: _changePage,
-                              physics: const NeverScrollableScrollPhysics(),
-                              children: [CardPayment(mainContext: widget.mainContext), TransferPayment(mainContext: widget.mainContext)],
-                            ),
-                          ),
-                        ],
+                          ],
+                        ),
+                      )),
+                  Expanded(
+                    flex: 1,
+                    child: Center(
+                      child: TextButton(
+                        onPressed: () => Navigator.pop(widget.mainContext, PaymentResponse(status: "failed", success: false)),
+                        child: Text("Cancel", style: TextStyle(color: SagePayUtils.orangePrimary)),
                       ),
-                    );
-                    // } else {
-                    //   return Center(
-                    //     child: Text("snapshot.data!['message']"),
-                    //   );
-                    // }
-                    // } else {
-                    //   return const Center(child: CircularProgressIndicator());
-                    // }
-                  }),
+                    ),
+                  ),
+                ],
+              )
             ),
           ),
         ),
@@ -207,7 +173,7 @@ class _SagePayCheckoutState extends State<SagePayCheckout> implements Transactio
 
   @override
   onCancelled() {
-    Fluttertoast.showToast(msg: "Transaction Cancelled");
+    // Fluttertoast.showToast(msg: "Transaction Cancelled");
     Navigator.pop(widget.mainContext);
   }
 
@@ -218,7 +184,7 @@ class _SagePayCheckoutState extends State<SagePayCheckout> implements Transactio
   }
 
   void _showErrorAndClose(final String errorMessage) {
-    Fluttertoast.showToast(msg: errorMessage);
+    // Fluttertoast.showToast(msg: errorMessage);
     Navigator.pop(widget.mainContext); // return response to user
   }
 }

@@ -26,16 +26,17 @@ context, business, reference, callbackUrl, amount, token  It returns an instance
 
 ```dart
 import 'package:sagepay/sagepay.dart';
+
 final sagePay = SagePay(
       context: context,
       amount: 100,
       reference: "jDSiFGdidHSddd",
       callbackUrl: "http://cspydo.com.ng",
       token: "SCSec-L-573d15f6************71ca6ecee9f6",
-      business: Business(name: "Tech4Me2", email: "csamsonok@gmail.com"),
+      business: Business(name: "Tech4Me", email: "csamsonok@gmail.com"),
     );
 
-PaymentResponse response = await sagePay.chargeTransaction();
+PaymentResponse? response = await sagePay.chargeTransaction();
 ```
 
 2. Handle the response
@@ -43,7 +44,17 @@ PaymentResponse response = await sagePay.chargeTransaction();
    of PaymentResponse which we await for the actual response as seen above.
 
 ```dart
-const like = 'sample';
+PaymentResponse? response = await sagePay.chargeTransaction();
+
+if (response != null) {
+  if(response.success) {
+    //handle success response 
+  } else {
+    //Handle not successful 
+  }
+} else {
+  //User cancelled checkout
+}
 ```
 
 ## Additional information

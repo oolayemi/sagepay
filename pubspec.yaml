@@ -1,6 +1,6 @@
 name: sagepay
 description: A package for sagepay
-version: 0.0.7+5
+version: 0.0.7+11
 homepage: https://github.com/oolayemi/sagepay#readme
 
 environment:
@@ -9,15 +9,8 @@ environment:
 
 dependencies:
   google_fonts: ^3.0.1
-  cupertino_icons: ^1.0.2
-  flutter_svg: ^1.1.4
-  flutter_multi_formatter: ^2.6.1
-  intl: ^0.17.0
-  credit_card_type_detector: ^2.0.0
   dio: ^4.0.6
-  encrypt: ^5.0.1
-  flutter_dotenv: ^5.0.2
-  fluttertoast: ^8.0.9
+  flutter_inappwebview: ^5.4.4+3
 
   flutter:
     sdk: flutter
@@ -37,8 +30,6 @@ flutter:
   assets:
     - assets/
     - assets/images/
-    - assets/icons/
-    - assets/logos/
   #
   # For details regarding assets in packages, see
   # https://flutter.dev/assets-and-images/#from-packages
