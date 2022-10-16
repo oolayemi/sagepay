@@ -85,7 +85,8 @@ class _SagePayCheckoutState extends State<SagePayCheckout>
                     padding: const EdgeInsets.all(20),
                     decoration: const BoxDecoration(
                         image: DecorationImage(
-                      image: AssetImage('assets/images/bg_img.png', package: 'sagepay'),
+                      image: AssetImage('assets/images/bg_img.png',
+                          package: 'sagepay'),
                       fit: BoxFit.cover,
                     )),
                     child: Column(
@@ -153,7 +154,8 @@ class _SagePayCheckoutState extends State<SagePayCheckout>
                                         });
                                       },
                                       style: ElevatedButton.styleFrom(
-                                          backgroundColor: SagePayUtils.orangePrimary,
+                                          backgroundColor:
+                                              SagePayUtils.orangePrimary,
                                           shape: RoundedRectangleBorder(
                                               borderRadius:
                                                   BorderRadius.circular(40)),

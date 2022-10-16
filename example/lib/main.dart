@@ -28,8 +28,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,13 +35,12 @@ class _MyHomePageState extends State<MyHomePage> {
         title: const Text("SagePay Example"),
       ),
       body: Center(
-        child: SizedBox(
-          child: ElevatedButton(
-            onPressed: () => gotoPaymentGateway(),
-            child: const Text('Go to SagePay Checkout'),
-          ),
-        )
-      ),
+          child: SizedBox(
+        child: ElevatedButton(
+          onPressed: () => gotoPaymentGateway(),
+          child: const Text('Go to SagePay Checkout'),
+        ),
+      )),
     );
   }
 
@@ -54,13 +51,14 @@ class _MyHomePageState extends State<MyHomePage> {
       reference: "{{randomly generated string}}",
       callbackUrl: "{{call back url}}",
       token: "{{Secret Key}}",
-      business: Business(name: "{{business name}}", email: "{{business email}}"),
+      business:
+          Business(name: "{{business name}}", email: "{{business email}}"),
     );
 
     PaymentResponse? response = await sagePay.chargeTransaction();
 
     if (response != null) {
-      if(response.success!) {
+      if (response.success!) {
         //handle success response
       } else {
         //Handle not successful
