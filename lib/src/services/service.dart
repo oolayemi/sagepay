@@ -5,7 +5,8 @@ import 'dio_exception.dart';
 class APIServices {
   final dio = Dio();
 
-  Future<Map<String, dynamic>?> initializeCheckout(var data, String token) async {
+  Future<Map<String, dynamic>?> initializeCheckout(
+      var data, String token) async {
     Map<String, dynamic>? responseD;
 
     dio.options.headers['Content-Type'] = 'application/json';
@@ -24,8 +25,12 @@ class APIServices {
     return responseD;
   }
 
-  Future<Map<String, dynamic>> paymentStatus(String token, String reference) async {
-    Map<String, dynamic> responseD = {"success": false, "message": "An error occurred"};
+  Future<Map<String, dynamic>> paymentStatus(
+      String token, String reference) async {
+    Map<String, dynamic> responseD = {
+      "success": false,
+      "message": "An error occurred"
+    };
 
     dio.options.headers['Content-Type'] = 'application/json';
     dio.options.headers['Accept'] = 'application/json';
@@ -44,7 +49,6 @@ class APIServices {
     return responseD;
   }
 }
-
 
 class APIs {
   static String baseUrl = 'https://sagecloud.ng/api/v3';

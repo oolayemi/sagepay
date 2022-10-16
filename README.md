@@ -28,13 +28,13 @@ context, business, reference, callbackUrl, amount, token  It returns an instance
 import 'package:sagepay/sagepay.dart';
 
 final sagePay = SagePay(
-      context: context,
-      amount: 100,
-      reference: "jDSiFGdidHSddd",
-      callbackUrl: "http://cspydo.com.ng",
-      token: "SCSec-L-573d15f6************71ca6ecee9f6",
-      business: Business(name: "Tech4Me", email: "csamsonok@gmail.com"),
-    );
+   context: context,
+   amount: 100,
+   reference: "{{randomly generated string}}",
+   callbackUrl: "{{call back url}}",
+   token: "{{Secret Key}}",
+   business: Business(name: "{{business name}}", email: "{{business email}}"),
+);
 
 PaymentResponse? response = await sagePay.chargeTransaction();
 ```
@@ -47,7 +47,7 @@ PaymentResponse? response = await sagePay.chargeTransaction();
 PaymentResponse? response = await sagePay.chargeTransaction();
 
 if (response != null) {
-  if(response.success) {
+  if(response.success!) {
     //handle success response 
   } else {
     //Handle not successful 

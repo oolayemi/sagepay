@@ -10,7 +10,7 @@ class PaymentResponse {
 
   PaymentResponse.fromJson(Map<String, dynamic> json) {
     status = json['status'] ?? TransactionStatus.ERROR;
-    success = json['success'] ?? false ;
+    success = json['success'] ?? false;
     transactionId = json['transaction_id'];
     txRef = json['tx_ref'];
   }
