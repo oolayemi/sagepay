@@ -34,6 +34,10 @@ final sagePay = SagePay(
    callbackUrl: "{{call back url}}",
    token: "{{Secret Key}}",
    business: Business(name: "{{business name}}", email: "{{business email}}"),
+   metadata: {
+      "name":"Ladenifer Jada",
+      "email":"ladjada@ymail.com"
+   }
 );
 
 PaymentResponse? response = await sagePay.chargeTransaction();

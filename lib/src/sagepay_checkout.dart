@@ -13,16 +13,13 @@ class SagePayCheckout extends StatefulWidget {
   final BuildContext mainContext;
   final SagePay request;
 
-  const SagePayCheckout(
-      {Key? key, required this.mainContext, required this.request})
-      : super(key: key);
+  const SagePayCheckout({Key? key, required this.mainContext, required this.request}) : super(key: key);
 
   @override
   State<SagePayCheckout> createState() => _SagePayCheckoutState();
 }
 
-class _SagePayCheckoutState extends State<SagePayCheckout>
-    implements TransactionCallBack {
+class _SagePayCheckoutState extends State<SagePayCheckout> implements TransactionCallBack {
   final _navigatorKey = GlobalKey<NavigatorState>();
 
   Timer? timer;
@@ -41,21 +38,16 @@ class _SagePayCheckoutState extends State<SagePayCheckout>
 
     timer = Timer.periodic(const Duration(seconds: 5), (_) async {
       if (startTimer) {
-        await APIServices()
-            .paymentStatus(widget.request.token, widget.request.reference)
-            .then((value) {
+        await APIServices().paymentStatus(widget.request.token, widget.request.reference).then((value) {
           if (value['data'].isNotEmpty) {
             print(value);
             if (value['data']['transaction_data']['status'] == "SUCCESSFUL") {
               timer!.cancel();
-              Navigator.pop(widget.mainContext,
-                  PaymentResponse(status: "success", success: true));
+              Navigator.pop(widget.mainContext, PaymentResponse(status: "success", success: true));
               print("Payment was successful");
-            } else if (value['data']['transaction_data']['status'] ==
-                "FAILED") {
+            } else if (value['data']['transaction_data']['status'] == "FAILED") {
               timer!.cancel();
-              Navigator.pop(widget.mainContext,
-                  PaymentResponse(status: "failed", success: false));
+              Navigator.pop(widget.mainContext, PaymentResponse(status: "failed", success: false));
               print("Payment was unsuccessful");
             }
           }
@@ -85,8 +77,7 @@ class _SagePayCheckoutState extends State<SagePayCheckout>
                     padding: const EdgeInsets.all(20),
                     decoration: const BoxDecoration(
                         image: DecorationImage(
-                      image: AssetImage('assets/images/bg_img.png',
-                          package: 'sagepay'),
+                      image: AssetImage('assets/images/bg_img.png', package: 'sagepay'),
                       fit: BoxFit.cover,
                     )),
                     child: Column(
@@ -111,24 +102,18 @@ class _SagePayCheckoutState extends State<SagePayCheckout>
                                     child: ElevatedButton(
                                       onPressed: () async {
                                         var data = {
-                                          "email":
-                                              widget.request.business.email,
+                                          "email": widget.request.business.email,
                                           "amount": widget.request.amount,
                                           "reference": widget.request.reference,
                                           "phone": "09098877876",
-                                          "callback_url":
-                                              widget.request.callbackUrl
+                                          "callback_url": widget.request.callbackUrl,
+                                          "metadata": widget.request.metadata
                                         };
                                         error = null;
                                         loading = true;
                                         setState(() {});
-                                        APIServices()
-                                            .initializeCheckout(
-                                                data, widget.request.token)
-                                            .then((value) {
-                                          if (value != null &&
-                                              value['success']) {
-                                            print(value);
+                                        APIServices().initializeCheckout(data, widget.request.token).then((value) {
+                                          if (value != null && value['success']) {
                                             url = value['data']['payment_url'];
                                             startTimer = true;
                                             // InAppBrowser().openUrlRequest(
@@ -154,28 +139,20 @@ class _SagePayCheckoutState extends State<SagePayCheckout>
                                         });
                                       },
                                       style: ElevatedButton.styleFrom(
-                                          backgroundColor:
-                                              SagePayUtils.orangePrimary,
-                                          shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(40)),
+                                          backgroundColor: SagePayUtils.orangePrimary,
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
                                           padding: const EdgeInsets.all(20)),
                                       child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
+                                        mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
                                           const Text('Make Payment'),
                                           loading
                                               ? const Padding(
-                                                  padding: EdgeInsets.symmetric(
-                                                      horizontal: 18.0),
+                                                  padding: EdgeInsets.symmetric(horizontal: 18.0),
                                                   child: SizedBox(
                                                     height: 20,
                                                     width: 20,
-                                                    child:
-                                                        CircularProgressIndicator(
-                                                            color:
-                                                                Colors.white),
+                                                    child: CircularProgressIndicator(color: Colors.white),
                                                   ),
                                                 )
                                               : const SizedBox()
@@ -190,11 +167,8 @@ class _SagePayCheckoutState extends State<SagePayCheckout>
                           flex: 1,
                           child: Center(
                             child: TextButton(
-                              onPressed: () =>
-                                  Navigator.pop(widget.mainContext),
-                              child: Text("Cancel",
-                                  style: TextStyle(
-                                      color: SagePayUtils.orangePrimary)),
+                              onPressed: () => Navigator.pop(widget.mainContext),
+                              child: Text("Cancel", style: TextStyle(color: SagePayUtils.orangePrimary)),
                             ),
                           ),
                         ),
@@ -213,8 +187,7 @@ class _SagePayCheckoutState extends State<SagePayCheckout>
                               useHybridComposition: true,
                             ),
                           ),
-                          onWebViewCreated:
-                              (InAppWebViewController controller) {
+                          onWebViewCreated: (InAppWebViewController controller) {
                             webViewController = controller;
                           },
                         ),
@@ -240,8 +213,7 @@ class _SagePayCheckoutState extends State<SagePayCheckout>
 
   @override
   onTransactionSuccess(String id, String txRef) {
-    final PaymentResponse chargeResponse = PaymentResponse(
-        status: "success", success: true, transactionId: id, txRef: txRef);
+    final PaymentResponse chargeResponse = PaymentResponse(status: "success", success: true, transactionId: id, txRef: txRef);
     Navigator.pop(widget.mainContext, chargeResponse);
   }
 
