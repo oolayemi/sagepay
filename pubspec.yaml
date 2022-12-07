@@ -1,6 +1,6 @@
 name: sagepay
 description: Flutter plugin for SagePay services. It supports the android and iOS platforms and it is easy to use. It's used for making payment as a Sagecloud merchant.
-version: 0.0.7+20
+version: 0.0.7+21
 homepage: https://github.com/oolayemi/sagepay#readme
 
 environment:

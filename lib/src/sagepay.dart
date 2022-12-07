@@ -10,6 +10,7 @@ class SagePay {
   final String callbackUrl;
   final double amount;
   final String token;
+  final String? paymentMethod;
   final Map<String, dynamic>? metadata;
 
   SagePay({
@@ -19,6 +20,7 @@ class SagePay {
     required this.callbackUrl,
     required this.amount,
     required this.token,
+    this.paymentMethod,
     this.metadata
   });
 
@@ -30,6 +32,7 @@ class SagePay {
       callbackUrl: callbackUrl,
       amount: amount,
       token: token,
+      paymentMethod: paymentMethod,
       metadata: metadata
     );
     return await Navigator.push(

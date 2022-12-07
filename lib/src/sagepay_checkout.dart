@@ -107,7 +107,8 @@ class _SagePayCheckoutState extends State<SagePayCheckout> implements Transactio
                                           "reference": widget.request.reference,
                                           "phone": "09098877876",
                                           "callback_url": widget.request.callbackUrl,
-                                          "metadata": widget.request.metadata
+                                          "metadata": widget.request.metadata,
+                                          'payment_method': widget.request.paymentMethod
                                         };
                                         error = null;
                                         loading = true;
